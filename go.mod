@@ -1,4 +1,4 @@
-module github.com/cloudboltsoftware/terraform-provider-cloudbolt
+module github.com/brianwhigham/terraform-provider-cloudbolt
 
 go 1.12
 
