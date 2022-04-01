@@ -16,6 +16,12 @@ func resourceBPInstance() *schema.Resource {
 		Update: resourceBPInstanceUpdate,
 		Delete: resourceBPInstanceDelete,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"group": &schema.Schema{
 				Type:     schema.TypeString,
@@ -121,7 +127,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 
 	stateChangeConf := resource.StateChangeConf{
 		Delay:   10 * time.Second,
-		Timeout: 5 * time.Minute,
+		Timeout: d.Timeout(schema.TimeoutCreate),
 		Pending: []string{"ACTIVE"},
 		Target:  []string{"SUCCESS"},
 		Refresh: OrderStateRefreshFunc(m.(Config), order.ID),
@@ -251,7 +257,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 
 		stateChangeConf := resource.StateChangeConf{
 			Delay:   10 * time.Second,
-			Timeout: 5 * time.Minute,
+			Timeout: d.Timeout(schema.TimeoutDelete),
 			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
 			Target:  []string{"SUCCESS"},
 			Refresh: JobStateRefreshFunc(m.(Config), job.RunActionJob.Self.Href),
@@ -278,7 +284,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 
 		stateChangeConf := resource.StateChangeConf{
 			Delay:   10 * time.Second,
-			Timeout: 5 * time.Minute,
+			Timeout: d.Timeout(schema.TimeoutDelete),
 			Pending: []string{"ACTIVE"},
 			Target:  []string{"SUCCESS"},
 			Refresh: OrderStateRefreshFunc(m.(Config), order.ID),
